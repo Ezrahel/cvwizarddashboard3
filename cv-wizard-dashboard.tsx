@@ -58,7 +58,7 @@ export default function CVWizardDashboard() {
       name: resume.template,
       description: "",
       preview: "",
-      color: "bg-blue-500",
+      color: "bg-gray-500",
     }
     setSelectedTemplate(template)
     setCurrentView("builder")
