@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Wizard - Professional Resume Builder</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #f8fafc;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+        }
+
+        .logo-section {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .help-icon {
+            margin-left: auto;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .help-icon:hover {
+            opacity: 1;
+        }
+
+        .new-button-section {
+            padding: 24px;
+        }
+
+        .new-button {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .new-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .nav-section {
+            flex: 1;
+            padding: 0 16px;
+        }
+
+        .nav-item {
+            width: 100%;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .login-section {
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+            font-size: 14px;
+        }
+
+        .login-button:hover {
+            color: white;
+        }
+
+        /* Enhanced Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 24px 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .view-button {
+            padding: 10px 12px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+
+        .view-button.active {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        /* Enhanced Grid Layout */
+        .resume-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .resume-card, .create-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .resume-card:hover, .create-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .create-card {
+            border: 2px dashed #cbd5e1;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .create-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .create-card:hover::before {
+            left: 100%;
+        }
+
+        .create-card:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .create-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 320px;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .create-icon {
+            width: 64px;
+            height: 64px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .create-card:hover .create-icon {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            transform: scale(1.1);
+        }
+
+        .create-text {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .create-card:hover .create-text {
+            color: #3b82f6;
+        }
+
+        .resume-preview {
+            height: 240px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resume-preview::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .resume-info {
+            padding: 20px;
+        }
+
+        .resume-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .resume-author {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .resume-date {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .resume-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .resume-card:hover .resume-actions {
+            opacity: 1;
+        }
+
+        .actions-button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .actions-button:hover {
+            background: #f8fafc;
+            transform: scale(1.05);
+        }
+
+        /* Enhanced Templates */
+        .templates-container {
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .templates-header {
+            margin-bottom: 32px;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .templates-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .templates-subtitle {
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .template-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .template-preview {
+            height: 300px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-preview::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-info {
+            padding: 24px;
+        }
+
+        .template-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .template-description {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .template-button {
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .template-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Enhanced Builder */
+        .builder-container {
+            display: flex;
+            height: 100vh;
+            background: #f8fafc;
+        }
+
+        .builder-form {
+            width: 50%;
+            padding: 32px;
+            overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .builder-preview {
+            width: 50%;
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-title-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .title-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .title-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .save-button, .export-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .export-button {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .save-button:hover, .export-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            margin-bottom: 32px;
+        }
+
+        .tabs-list {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .add-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .remove-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .remove-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .experience-card, .education-card, .skill-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .experience-card:hover, .education-card:hover, .skill-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .preview-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .preview-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .preview-contact {
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .preview-section {
+            margin-bottom: 32px;
+        }
+
+        .preview-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .preview-item {
+            margin-bottom: 20px;
+        }
+
+        .preview-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 4px;
+        }
+
+        .preview-item-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .preview-item-date {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .preview-item-company {
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .preview-item-description {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #93c5fd;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .builder-container {
+                flex-direction: column;
+            }
+            
+            .builder-form, .builder-preview {
+                width: 100%;
+            }
+            
+            .resume-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // Custom Hooks
+        function useResumes() {
+            const [resumes, setResumes] = useState([]);
+
+            useEffect(() => {
+                const savedResumes = localStorage.getItem('cvwizard-resumes');
+                if (savedResumes) {
+                    setResumes(JSON.parse(savedResumes));
+                }
+            }, []);
+
+            const saveResumes = (newResumes) => {
+                setResumes(newResumes);
+                localStorage.setItem('cvwizard-resumes', JSON.stringify(newResumes));
+            };
+
+            const addResume = (resume) => {
+                const newResumes = [...resumes, resume];
+                saveResumes(newResumes);
+            };
+
+            const updateResume = (id, updatedResume) => {
+                const newResumes = resumes.map(resume => 
+                    resume.id === id 
+                        ? { ...resume, ...updatedResume, updatedAt: new Date().toISOString() }
+                        : resume
+                );
+                saveResumes(newResumes);
+            };
+
+            const deleteResume = (id) => {
+                const newResumes = resumes.filter(resume => resume.id !== id);
+                saveResumes(newResumes);
+            };
+
+            const getResume = (id) => {
+                return resumes.find(resume => resume.id === id);
+            };
+
+            return {
+                resumes,
+                addResume,
+                updateResume,
+                deleteResume,
+                getResume
+            };
+        }
+
+        // Templates Data
+        const templates = [
+            {
+                id: 'modern',
+                name: 'Modern Professional',
+                description: 'Clean and contemporary design perfect for tech and creative industries',
+                color: 'bg-blue-500'
+            },
+            {
+                id: 'classic',
+                name: 'Classic Executive',
+                description: 'Traditional professional layout ideal for corporate positions',
+                color: 'bg-gray-600'
+            },
+            {
+                id: 'creative',
+                name: 'Creative Designer',
+                description: 'Bold and eye-catching design for creative professionals',
+                color: 'bg-purple-500'
+            },
+            {
+                id: 'minimal',
+                name: 'Minimal Elegant',
+                description: 'Simple and elegant layout that focuses on content',
+                color: 'bg-green-500'
+            }
+        ];
+
+        // Components
+        function ResumeTemplates({ onSelectTemplate, onBack }) {
+            return (
+                <div className="templates-container fade-in">
+                    <div className="templates-header">
+                        <button className="back-button" onClick={onBack}>
+                            <i className="fas fa-arrow-left"></i> Back to Dashboard
+                        </button>
+                        <h2 className="templates-title">Choose Your Template</h2>
+                        <p className="templates-subtitle">Select a professional template to get started with your resume</p>
+                    </div>
+
+                    <div className="templates-grid">
+                        {templates.map((template) => (
+                            <div key={template.id} className="template-card" onClick={() => onSelectTemplate(template)}>
+                                <div className="template-preview">
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '30px',
+                                        left: '30px',
+                                        right: '30px',
+                                        bottom: '30px',
+                                        background: 'white',
+                                        borderRadius: '12px',
+                                        padding: '20px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px'
+                                    }}>
+                                        <div style={{ height: '8px', background: '#1e293b', borderRadius: '4px', width: '60%' }}></div>
+                                        <div style={{ height: '4px', background: '#64748b', borderRadius: '2px', width: '80%' }}></div>
+                                        <div style={{ height: '4px', background: '#64748b', borderRadius: '2px', width: '70%' }}></div>
+                                        <div style={{ height: '2px', background: '#e2e8f0', borderRadius: '1px', marginTop: '12px' }}></div>
+                                        <div style={{ height: '6px', background: '#3b82f6', borderRadius: '3px', width: '50%', marginTop: '8px' }}></div>
+                                        <div style={{ height: '3px', background: '#cbd5e1', borderRadius: '1px', width: '90%' }}></div>
+                                        <div style={{ height: '3px', background: '#cbd5e1', borderRadius: '1px', width: '85%' }}></div>
+                                        <div style={{ height: '3px', background: '#cbd5e1', borderRadius: '1px', width: '75%' }}></div>
+                                    </div>
+                                </div>
+                                <div className="template-info">
+                                    <h3 className="template-name">{template.name}</h3>
+                                    <p className="template-description">{template.description}</p>
+                                    <button className="template-button">
+                                        Use This Template
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function ResumeBuilder({ template, resume, onSave, onBack }) {
+            const [activeTab, setActiveTab] = useState('personal');
+            const [resumeTitle, setResumeTitle] = useState(resume?.title || 'My Professional Resume');
+            
+            const [personalInfo, setPersonalInfo] = useState(resume?.personalInfo || {
+                firstName: '',
+                lastName: '',
+                email: '',
+                phone: '',
+                address: '',
+                city: '',
+                country: '',
+                summary: ''
+            });
+
+            const [experience, setExperience] = useState(resume?.experience || []);
+            const [education, setEducation] = useState(resume?.education || []);
+            const [skills, setSkills] = useState(resume?.skills || []);
+
+            const addExperience = () => {
+                const newExp = {
+                    id: Date.now().toString(),
+                    jobTitle: '',
+                    company: '',
+                    location: '',
+                    startDate: '',
+                    endDate: '',
+                    current: false,
+                    description: ''
+                };
+                setExperience([...experience, newExp]);
+            };
+
+            const updateExperience = (id, field, value) => {
+                setExperience(experience.map(exp => 
+                    exp.id === id ? { ...exp, [field]: value } : exp
+                ));
+            };
+
+            const removeExperience = (id) => {
+                setExperience(experience.filter(exp => exp.id !== id));
+            };
+
+            const addEducation = () => {
+                const newEdu = {
+                    id: Date.now().toString(),
+                    degree: '',
+                    school: '',
+                    location: '',
+                    startDate: '',
+                    endDate: '',
+                    current: false,
+                    description: ''
+                };
+                setEducation([...education, newEdu]);
+            };
+
+            const updateEducation = (id, field, value) => {
+                setEducation(education.map(edu => 
+                    edu.id === id ? { ...edu, [field]: value } : edu
+                ));
+            };
+
+            const removeEducation = (id) => {
+                setEducation(education.filter(edu => edu.id !== id));
+            };
+
+            const addSkill = () => {
+                const newSkill = {
+                    id: Date.now().toString(),
+                    name: '',
+                    level: 'Intermediate'
+                };
+                setSkills([...skills, newSkill]);
+            };
+
+            const updateSkill = (id, field, value) => {
+                setSkills(skills.map(skill => 
+                    skill.id === id ? { ...skill, [field]: value } : skill
+                ));
+            };
+
+            const removeSkill = (id) => {
+                setSkills(skills.filter(skill => skill.id !== id));
+            };
+
+            const handleSave = () => {
+                const newResume = {
+                    id: resume?.id || Date.now().toString(),
+                    title: resumeTitle,
+                    template: template.id,
+                    personalInfo,
+                    experience,
+                    education,
+                    skills,
+                    createdAt: resume?.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                onSave(newResume);
+            };
+
+            const handleExport = () => {
+                const resumeData = {
+                    title: resumeTitle,
+                    personalInfo,
+                    experience,
+                    education,
+                    skills
+                };
+                
+                const dataStr = JSON.stringify(resumeData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${resumeTitle.replace(/\s+/g, '_')}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            return (
+                <div className="builder-container">
+                    <div className="builder-form">
+                        <div className="form-header">
+                            <button className="back-button" onClick={onBack}>
+                                <i className="fas fa-arrow-left"></i> Back
+                            </button>
+                            <div className="form-title-section">
+                                <input
+                                    className="title-input"
+                                    value={resumeTitle}
+                                    onChange={(e) => setResumeTitle(e.target.value)}
+                                    placeholder="Enter resume title"
+                                />
+                                <button className="save-button" onClick={handleSave}>
+                                    <i className="fas fa-save"></i> Save Resume
+                                </button>
+                                <button className="export-button" onClick={handleExport}>
+                                    <i className="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="tabs">
+                            <div className="tabs-list">
+                                <button 
+                                    className={`tab-button ${activeTab === 'personal' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('personal')}
+                                >
+                                    Personal
+                                </button>
+                                <button 
+                                    className={`tab-button ${activeTab === 'experience' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('experience')}
+                                >
+                                    Experience
+                                </button>
+                                <button 
+                                    className={`tab-button ${activeTab === 'education' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('education')}
+                                >
+                                    Education
+                                </button>
+                                <button 
+                                    className={`tab-button ${activeTab === 'skills' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('skills')}
+                                >
+                                    Skills
+                                </button>
+                            </div>
+
+                            {activeTab === 'personal' && (
+                                <div className="form-section fade-in">
+                                    <h3 className="section-title">Personal Information</h3>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">First Name</label>
+                                            <input
+                                                className="form-input"
+                                                value={personalInfo.firstName}
+                                                onChange={(e) => setPersonalInfo({...personalInfo, firstName: e.target.value})}
+                                                placeholder="Enter your first name"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Last Name</label>
+                                            <input
+                                                className="form-input"
+                                                value={personalInfo.lastName}
+                                                onChange={(e) => setPersonalInfo({...personalInfo, lastName: e.target.value})}
+                                                placeholder="Enter your last name"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Email Address</label>
+                                        <input
+                                            className="form-input"
+                                            type="email"
+                                            value={personalInfo.email}
+                                            onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
+                                            placeholder="your.email@example.com"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Phone Number</label>
+                                        <input
+                                            className="form-input"
+                                            value={personalInfo.phone}
+                                            onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
+                                            placeholder="+1 (555) 123-4567"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Address</label>
+                                        <input
+                                            className="form-input"
+                                            value={personalInfo.address}
+                                            onChange={(e) => setPersonalInfo({...personalInfo, address: e.target.value})}
+                                            placeholder="123 Main Street"
+                                        />
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">City</label>
+                                            <input
+                                                className="form-input"
+                                                value={personalInfo.city}
+                                                onChange={(e) => setPersonalInfo({...personalInfo, city: e.target.value})}
+                                                placeholder="New York"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Country</label>
+                                            <input
+                                                className="form-input"
+                                                value={personalInfo.country}
+                                                onChange={(e) => setPersonalInfo({...personalInfo, country: e.target.value})}
+                                                placeholder="United States"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Professional Summary</label>
+                                        <textarea
+                                            className="form-textarea"
+                                            rows="4"
+                                            value={personalInfo.summary}
+                                            onChange={(e) => setPersonalInfo({...personalInfo, summary: e.target.value})}
+                                            placeholder="Write a brief summary of your professional background and career objectives..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'experience' && (
+                                <div className="fade-in">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                        <h3 className="section-title">Work Experience</h3>
+                                        <button className="add-button" onClick={addExperience}>
+                                            <i className="fas fa-plus"></i> Add Experience
+                                        </button>
+                                    </div>
+                                    {experience.map((exp) => (
+                                        <div key={exp.id} className="experience-card">
+                                            <div className="card-header">
+                                                <div className="form-row" style={{ flex: 1 }}>
+                                                    <div className="form-group">
+                                                        <label className="form-label">Job Title</label>
+                                                        <input
+                                                            className="form-input"
+                                                            value={exp.jobTitle}
+                                                            onChange={(e) => updateExperience(exp.id, 'jobTitle', e.target.value)}
+                                                            placeholder="Software Engineer"
+                                                        />
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label className="form-label">Company</label>
+                                                        <input
+                                                            className="form-input"
+                                                            value={exp.company}
+                                                            onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                                                            placeholder="Tech Company Inc."
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    className="remove-button"
+                                                    onClick={() => removeExperience(exp.id)}
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Location</label>
+                                                <input
+                                                    className="form-input"
+                                                    value={exp.location}
+                                                    onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
+                                                    placeholder="San Francisco, CA"
+                                                />
+                                            </div>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label className="form-label">Start Date</label>
+                                                    <input
+                                                        className="form-input"
+                                                        type="month"
+                                                        value={exp.startDate}
+                                                        onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label className="form-label">End Date</label>
+                                                    <input
+                                                        className="form-input"
+                                                        type="month"
+                                                        value={exp.endDate}
+                                                        onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                                                        disabled={exp.current}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={exp.current}
+                                                        onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}
+                                                    />
+                                                    Currently working here
+                                                </label>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Description</label>
+                                                <textarea
+                                                    className="form-textarea"
+                                                    rows="3"
+                                                    value={exp.description}
+                                                    onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
+                                                    placeholder="Describe your responsibilities and achievements..."
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {activeTab === 'education' && (
+                                <div className="fade-in">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                        <h3 className="section-title">Education</h3>
+                                        <button className="add-button" onClick={addEducation}>
+                                            <i className="fas fa-plus"></i> Add Education
+                                        </button>
+                                    </div>
+                                    {education.map((edu) => (
+                                        <div key={edu.id} className="education-card">
+                                            <div className="card-header">
+                                                <div className="form-row" style={{ flex: 1 }}>
+                                                    <div className="form-group">
+                                                        <label className="form-label">Degree</label>
+                                                        <input
+                                                            className="form-input"
+                                                            value={edu.degree}
+                                                            onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
+                                                            placeholder="Bachelor of Science"
+                                                        />
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label className="form-label">School</label>
+                                                        <input
+                                                            className="form-input"
+                                                            value={edu.school}
+                                                            onChange={(e) => updateEducation(edu.id, 'school', e.target.value)}
+                                                            placeholder="University Name"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    className="remove-button"
+                                                    onClick={() => removeEducation(edu.id)}
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Location</label>
+                                                <input
+                                                    className="form-input"
+                                                    value={edu.location}
+                                                    onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
+                                                    placeholder="Boston, MA"
+                                                />
+                                            </div>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label className="form-label">Start Date</label>
+                                                    <input
+                                                        className="form-input"
+                                                        type="month"
+                                                        value={edu.startDate}
+                                                        onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label className="form-label">End Date</label>
+                                                    <input
+                                                        className="form-input"
+                                                        type="month"
+                                                        value={edu.endDate}
+                                                        onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                                                        disabled={edu.current}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={edu.current}
+                                                        onChange={(e) => updateEducation(edu.id, 'current', e.target.checked)}
+                                                    />
+                                                    Currently studying here
+                                                </label>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {activeTab === 'skills' && (
+                                <div className="fade-in">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                        <h3 className="section-title">Skills</h3>
+                                        <button className="add-button" onClick={addSkill}>
+                                            <i className="fas fa-plus"></i> Add Skill
+                                        </button>
+                                    </div>
+                                    {skills.map((skill) => (
+                                        <div key={skill.id} className="skill-card">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                                                    <label className="form-label">Skill Name</label>
+                                                    <input
+                                                        className="form-input"
+                                                        value={skill.name}
+                                                        onChange={(e) => updateSkill(skill.id, 'name', e.target.value)}
+                                                        placeholder="JavaScript"
+                                                    />
+                                                </div>
+                                                <div className="form-group" style={{ width: '160px', marginBottom: 0 }}>
+                                                    <label className="form-label">Level</label>
+                                                    <select
+                                                        className="form-select"
+                                                        value={skill.level}
+                                                        onChange={(e) => updateSkill(skill.id, 'level', e.target.value)}
+                                                    >
+                                                        <option value="Beginner">Beginner</option>
+                                                        <option value="Intermediate">Intermediate</option>
+                                                        <option value="Advanced">Advanced</option>
+                                                        <option value="Expert">Expert</option>
+                                                    </select>
+                                                </div>
+                                                <button
+                                                    className="remove-button"
+                                                    onClick={() => removeSkill(skill.id)}
+                                                >
+                                                    <i className="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="builder-preview">
+                        <div className="preview-container">
+                            <div className="preview-header">
+                                <h1 className="preview-name">
+                                    {personalInfo.firstName} {personalInfo.lastName}
+                                </h1>
+                                <div className="preview-contact">
+                                    {personalInfo.email} • {personalInfo.phone}
+                                </div>
+                                <div className="preview-contact">
+                                    {personalInfo.address}, {personalInfo.city}, {personalInfo.country}
+                                </div>
+                            </div>
+
+                            {personalInfo.summary && (
+                                <div className="preview-section">
+                                    <h2 className="preview-section-title">Professional Summary</h2>
+                                    <p className="preview-item-description">{personalInfo.summary}</p>
+                                </div>
+                            )}
+
+                            {experience.length > 0 && (
+                                <div className="preview-section">
+                                    <h2 className="preview-section-title">Work Experience</h2>
+                                    {experience.map((exp) => (
+                                        <div key={exp.id} className="preview-item">
+                                            <div className="preview-item-header">
+                                                <h3 className="preview-item-title">{exp.jobTitle}</h3>
+                                                <span className="preview-item-date">
+                                                    {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                                                </span>
+                                            </div>
+                                            <div className="preview-item-company">{exp.company} • {exp.location}</div>
+                                            {exp.description && <p className="preview-item-description">{exp.description}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {education.length > 0 && (
+                                <div className="preview-section">
+                                    <h2 className="preview-section-title">Education</h2>
+                                    {education.map((edu) => (
+                                        <div key={edu.id} className="preview-item">
+                                            <div className="preview-item-header">
+                                                <h3 className="preview-item-title">{edu.degree}</h3>
+                                                <span className="preview-item-date">
+                                                    {edu.startDate} - {edu.current ? 'Present' : edu.endDate}
+                                                </span>
+                                            </div>
+                                            <div className="preview-item-company">{edu.school} • {edu.location}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {skills.length > 0 && (
+                                <div className="preview-section">
+                                    <h2 className="preview-section-title">Skills</h2>
+                                    <div className="skills-container">
+                                        {skills.map((skill) => (
+                                            <span key={skill.id} className="skill-tag">
+                                                {skill.name} ({skill.level})
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ResumeCard({ resume, onEdit, onDelete, onDuplicate }) {
+            const [showActions, setShowActions] = useState(false);
+
+            const handleExport = () => {
+                const resumeData = {
+                    title: resume.title,
+                    personalInfo: resume.personalInfo,
+                    experience: resume.experience,
+                    education: resume.education,
+                    skills: resume.skills
+                };
+                
+                const dataStr = JSON.stringify(resumeData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${resume.title.replace(/\s+/g, '_')}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            return (
+                <div 
+                    className="resume-card"
+                    onMouseEnter={() => setShowActions(true)}
+                    onMouseLeave={() => setShowActions(false)}
+                >
+                    <div className="resume-preview">
+                        {showActions && (
+                            <div className="resume-actions">
+                                <div className="actions-button" style={{ position: 'relative' }}>
+                                    <i className="fas fa-ellipsis-h"></i>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        right: '0',
+                                        background: 'white',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                                        minWidth: '120px',
+                                        zIndex: 10,
+                                        display: showActions ? 'block' : 'none'
+                                    }}>
+                                        <button 
+                                            onClick={() => onEdit(resume)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                border: 'none',
+                                                background: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            <i className="fas fa-edit" style={{ marginRight: '8px' }}></i>
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => onDuplicate(resume)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                border: 'none',
+                                                background: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            <i className="fas fa-copy" style={{ marginRight: '8px' }}></i>
+                                            Duplicate
+                                        </button>
+                                        <button 
+                                            onClick={handleExport}
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                border: 'none',
+                                                background: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            <i className="fas fa-download" style={{ marginRight: '8px' }}></i>
+                                            Export
+                                        </button>
+                                        <button 
+                                            onClick={() => onDelete(resume.id)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                border: 'none',
+                                                background: 'none',
+                                                textAlign: 'left',
+                                                cursor: 'pointer',
+                                                fontSize: '14px',
+                                                color: '#ef4444'
+                                            }}
+                                        >
+                                            <i className="fas fa-trash" style={{ marginRight: '8px' }}></i>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="resume-info">
+                        <h3 className="resume-title">{resume.title}</h3>
+                        <p className="resume-author">
+                            {resume.personalInfo.firstName} {resume.personalInfo.lastName}
+                        </p>
+                        <p className="resume-date">
+                            Updated {new Date(resume.updatedAt).toLocaleDateString()}
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        function CVWizardDashboard() {
+            const [viewMode, setViewMode] = useState('grid');
+            const [activeTab, setActiveTab] = useState('resumes');
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [selectedTemplate, setSelectedTemplate] = useState(null);
+            const [editingResume, setEditingResume] = useState(null);
+
+            const { resumes, addResume, updateResume, deleteResume } = useResumes();
+
+            const sidebarItems = [
+                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-tachometer-alt' },
+                { id: 'resumes', label: 'Resumes', icon: 'fas fa-file-alt' },
+                { id: 'cover-letters', label: 'Cover Letters', icon: 'fas fa-envelope' },
+                { id: 'jobs', label: 'Jobs', icon: 'fas fa-briefcase' },
+                { id: 'applications', label: 'Applications', icon: 'fas fa-paper-plane' },
+            ];
+
+            const handleCreateNew = () => {
+                setCurrentView('templates');
+                setEditingResume(null);
+            };
+
+            const handleSelectTemplate = (template) => {
+                setSelectedTemplate(template);
+                setCurrentView('builder');
+            };
+
+            const handleSaveResume = (resume) => {
+                if (editingResume) {
+                    updateResume(resume.id, resume);
+                } else {
+                    addResume(resume);
+                }
+                setCurrentView('dashboard');
+                setEditingResume(null);
+                setSelectedTemplate(null);
+            };
+
+            const handleEditResume = (resume) => {
+                setEditingResume(resume);
+                const template = {
+                    id: resume.template,
+                    name: resume.template,
+                    description: '',
+                    color: 'bg-blue-500'
+                };
+                setSelectedTemplate(template);
+                setCurrentView('builder');
+            };
+
+            const handleDuplicateResume = (resume) => {
+                const duplicatedResume = {
+                    ...resume,
+                    id: Date.now().toString(),
+                    title: `${resume.title} (Copy)`,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                addResume(duplicatedResume);
+            };
+
+            const handleBackToDashboard = () => {
+                setCurrentView('dashboard');
+                setSelectedTemplate(null);
+                setEditingResume(null);
+            };
+
+            if (currentView === 'templates') {
+                return (
+                    <ResumeTemplates 
+                        onSelectTemplate={handleSelectTemplate}
+                        onBack={handleBackToDashboard}
+                    />
+                );
+            }
+
+            if (currentView === 'builder' && selectedTemplate) {
+                return (
+                    <ResumeBuilder
+                        template={selectedTemplate}
+                        resume={editingResume}
+                        onSave={handleSaveResume}
+                        onBack={handleBackToDashboard}
+                    />
+                );
+            }
+
+            return (
+                <div className="app-container">
+                    <div className="sidebar slide-in">
+                        <div className="logo-section">
+                            <div className="logo">
+                                <div className="logo-icon">W</div>
+                                <span className="logo-text">WIZARD</span>
+                                <i className="fas fa-question-circle help-icon"></i>
+                            </div>
+                        </div>
+
+                        <div className="new-button-section">
+                            <button className="new-button" onClick={handleCreateNew}>
+                                <i className="fas fa-plus"></i>
+                                New Resume
+                            </button>
+                        </div>
+
+                        <nav className="nav-section">
+                            {sidebarItems.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveTab(item.id)}
+                                    className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                                >
+                                    <i className={item.icon}></i>
+                                    {item.label}
+                                </button>
+                            ))}
+                        </nav>
+
+                        <div className="login-section">
+                            <button className="login-button">
+                                <i className="fas fa-sign-in-alt"></i>
+                                Log in
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="main-content">
+                        <div className="header">
+                            <div className="header-content">
+                                <h1 className="header-title">
+                                    {activeTab === 'resumes' ? 'My Resumes' : 
+                                     activeTab === 'dashboard' ? 'Dashboard' :
+                                     activeTab === 'cover-letters' ? 'Cover Letters' :
+                                     activeTab === 'jobs' ? 'Job Search' : 'Applications'}
+                                </h1>
+                                {activeTab === 'resumes' && (
+                                    <div className="view-toggle">
+                                        <button
+                                            className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+                                            onClick={() => setViewMode('grid')}
+                                        >
+                                            <i className="fas fa-th"></i>
+                                        </button>
+                                        <button
+                                            className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
+                                            onClick={() => setViewMode('list')}
+                                        >
+                                            <i className="fas fa-list"></i>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="content-area">
+                            {activeTab === 'resumes' ? (
+                                <div className="fade-in">
+                                    {viewMode === 'grid' ? (
+                                        <div className="resume-grid">
+                                            <div className="create-card" onClick={handleCreateNew}>
+                                                <div className="create-content">
+                                                    <div className="create-icon">
+                                                        <i className="fas fa-plus" style={{ fontSize: '24px', color: '#cbd5e1' }}></i>
+                                                    </div>
+                                                    <p className="create-text">Create new resume</p>
+                                                </div>
+                                            </div>
+
+                                            {resumes.map((resume) => (
+                                                <ResumeCard
+                                                    key={resume.id}
+                                                    resume={resume}
+                                                    onEdit={handleEditResume}
+                                                    onDelete={deleteResume}
+                                                    onDuplicate={handleDuplicateResume}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                            <div className="create-card" onClick={handleCreateNew} style={{ height: '80px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px' }}>
+                                                    <div style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        border: '2px dashed #cbd5e1',
+                                                        borderRadius: '8px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}>
+                                                        <i className="fas fa-plus" style={{ color: '#cbd5e1' }}></i>
+                                                    </div>
+                                                    <p className="create-text">Create new resume</p>
+                                                </div>
+                                            </div>
+
+                                            {resumes.map((resume) => (
+                                                <div key={resume.id} className="resume-card" style={{ height: 'auto' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                            <div style={{
+                                                                width: '48px',
+                                                                height: '64px',
+                                                                background: '#f1f5f9',
+                                                                borderRadius: '8px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                            }}>
+                                                                <i className="fas fa-file-alt" style={{ fontSize: '24px', color: '#64748b' }}></i>
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="resume-title">{resume.title}</h3>
+                                                                <p className="resume-author">
+                                                                    {resume.personalInfo.firstName} {resume.personalInfo.lastName}
+                                                                </p>
+                                                                <p className="resume-date">
+                                                                    Updated {new Date(resume.updatedAt).toLocaleDateString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            <button
+                                                                onClick={() => handleEditResume(resume)}
+                                                                style={{
+                                                                    padding: '8px 16px',
+                                                                    border: '1px solid #e2e8f0',
+                                                                    background: 'white',
+                                                                    borderRadius: '8px',
+                                                                    cursor: 'pointer',
+                                                                    fontSize: '14px',
+                                                                    fontWeight: '500'
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteResume(resume.id)}
+                                                                style={{
+                                                                    padding: '8px 16px',
+                                                                    border: '1px solid #fecaca',
+                                                                    background: '#fef2f2',
+                                                                    borderRadius: '8px',
+                                                                    cursor: 'pointer',
+                                                                    fontSize: '14px',
+                                                                    fontWeight: '500',
+                                                                    color: '#dc2626'
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <i className="fas fa-construction" style={{ fontSize: '64px', color: '#cbd5e1', marginBottom: '16px' }}></i>
+                                        <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#64748b', marginBottom: '8px' }}>
+                                            {activeTab === 'dashboard' ? 'Dashboard' : 
+                                             activeTab === 'cover-letters' ? 'Cover Letters' :
+                                             activeTab === 'jobs' ? 'Job Search' : 'Applications'}
+                                        </h2>
+                                        <p style={{ color: '#94a3b8' }}>This section is coming soon!</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<CVWizardDashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>
