@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -92,6 +92,52 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
     [],
   )
   const [signature, setSignature] = useState<string>("")
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string>("")
+  const [selectedFont, setSelectedFont] = useState<string>("Inter")
+  const [selectedColor, setSelectedColor] = useState<string>("blue")
+  const [textFormatting, setTextFormatting] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: "16px"
+  })
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+
+  const closeDropdowns = () => setOpenDropdown(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        closeDropdowns()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setPhotoFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPhotoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleResumeUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Here you would typically parse the resume file (PDF, DOC, etc.)
+      // For now, we'll just show a success message
+      alert("Resume uploaded successfully! Please fill in the details below.")
+    }
+  }
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -109,8 +155,8 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
       experience,
       education,
       skills,
-      languages,
-      hobbies,
+      languages: languages || [],
+      hobbies: hobbies || [],
       createdAt: resume?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -163,11 +209,12 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
       ...education,
       {
         id: Date.now().toString(),
-        institution: "",
+        school: "",
         degree: "",
-        fieldOfStudy: "",
+        location: "",
         startDate: "",
         endDate: "",
+        current: false,
         description: "",
       },
     ])
@@ -178,8 +225,9 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
       ...experience,
       {
         id: Date.now().toString(),
+        jobTitle: "",
         company: "",
-        position: "",
+        location: "",
         startDate: "",
         endDate: "",
         description: "",
@@ -222,7 +270,7 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
   }
 
   return (
-    <div className="h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50" ref={dropdownRef}>
       {/* ... existing header code ... */}
       <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -268,8 +316,17 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
             <div className="grid grid-cols-2 gap-4 mb-6">
               <Card className="border-dashed border-2 border-gray-300 hover:border-gray-400 cursor-pointer">
                 <CardContent className="p-4 text-center">
-                  <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-600">Upload existing resume</p>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={handleResumeUpload}
+                    className="hidden"
+                    id="resume-upload"
+                  />
+                  <label htmlFor="resume-upload" className="cursor-pointer">
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-gray-600">Upload existing resume</p>
+                  </label>
                 </CardContent>
               </Card>
               <Card className="border-dashed border-2 border-gray-300 hover:border-gray-400 cursor-pointer">
@@ -300,10 +357,27 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label className="text-sm text-gray-600">Photo</Label>
-                      <div className="w-20 h-20 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50">
-                        <div className="text-center">
-                          <div className="w-6 h-6 mx-auto mb-1 text-gray-400">📷</div>
-                        </div>
+                      <div className="w-20 h-20 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 relative overflow-hidden">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          className="hidden"
+                          id="photo-upload"
+                        />
+                        <label htmlFor="photo-upload" className="cursor-pointer w-full h-full flex items-center justify-center">
+                          {photoPreview ? (
+                            <img 
+                              src={photoPreview} 
+                              alt="Profile" 
+                              className="w-full h-full object-cover rounded"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <div className="w-6 h-6 mx-auto mb-1 text-gray-400">📷</div>
+                            </div>
+                          )}
+                        </label>
                       </div>
                     </div>
                     <div>
@@ -548,12 +622,12 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                     <div key={edu.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-sm text-gray-600">Institution</Label>
+                          <Label className="text-sm text-gray-600">School</Label>
                           <Input
-                            value={edu.institution}
+                            value={edu.school}
                             onChange={(e) => {
                               const newEducation = [...education]
-                              newEducation[index].institution = e.target.value
+                              newEducation[index].school = e.target.value
                               setEducation(newEducation)
                             }}
                             className="mt-1"
@@ -575,16 +649,16 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                         </div>
                       </div>
                       <div>
-                        <Label className="text-sm text-gray-600">Field of Study</Label>
+                        <Label className="text-sm text-gray-600">Location</Label>
                         <Input
-                          value={edu.fieldOfStudy}
+                          value={edu.location}
                           onChange={(e) => {
                             const newEducation = [...education]
-                            newEducation[index].fieldOfStudy = e.target.value
+                            newEducation[index].location = e.target.value
                             setEducation(newEducation)
                           }}
                           className="mt-1"
-                          placeholder="Computer Science, Business, etc."
+                          placeholder="City, Country"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
@@ -664,18 +738,31 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                           />
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600">Position</Label>
+                          <Label className="text-sm text-gray-600">Job Title</Label>
                           <Input
-                            value={exp.position}
+                            value={exp.jobTitle}
                             onChange={(e) => {
                               const newExperience = [...experience]
-                              newExperience[index].position = e.target.value
+                              newExperience[index].jobTitle = e.target.value
                               setExperience(newExperience)
                             }}
                             className="mt-1"
                             placeholder="Job title"
                           />
                         </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-gray-600">Location</Label>
+                        <Input
+                          value={exp.location}
+                          onChange={(e) => {
+                            const newExperience = [...experience]
+                            newExperience[index].location = e.target.value
+                            setExperience(newExperience)
+                          }}
+                          className="mt-1"
+                          placeholder="City, Country"
+                        />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -1185,12 +1272,42 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
 
         <div className="w-1/2 bg-gray-100 p-6 overflow-y-auto">
           <div className="bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
-            <div className="bg-blue-600 text-white p-8 rounded-t-lg">
-              <h1 className="text-2xl font-bold text-center">
+            <div 
+              className="text-white p-8 rounded-t-lg"
+              style={{
+                backgroundColor: selectedColor === 'blue' ? '#3B82F6' :
+                                selectedColor === 'green' ? '#10B981' :
+                                selectedColor === 'purple' ? '#8B5CF6' :
+                                selectedColor === 'red' ? '#EF4444' :
+                                selectedColor === 'orange' ? '#F59E0B' :
+                                '#6B7280'
+              }}
+            >
+              <h1 
+                className="text-2xl font-bold text-center"
+                style={{ 
+                  fontFamily: selectedFont,
+                  fontSize: textFormatting.fontSize,
+                  fontWeight: textFormatting.bold ? 'bold' : 'normal',
+                  fontStyle: textFormatting.italic ? 'italic' : 'normal',
+                  textDecoration: textFormatting.underline ? 'underline' : 'none'
+                }}
+              >
                 {personalInfo.firstName} {personalInfo.lastName}
               </h1>
               {personalInfo.desiredPosition && personalInfo.useAsHeadline && (
-                <p className="text-center text-blue-100 mt-2">{personalInfo.desiredPosition}</p>
+                <p 
+                  className="text-center text-blue-100 mt-2"
+                  style={{ 
+                    fontFamily: selectedFont,
+                    fontSize: textFormatting.fontSize,
+                    fontWeight: textFormatting.bold ? 'bold' : 'normal',
+                    fontStyle: textFormatting.italic ? 'italic' : 'normal',
+                    textDecoration: textFormatting.underline ? 'underline' : 'none'
+                  }}
+                >
+                  {personalInfo.desiredPosition}
+                </p>
               )}
             </div>
 
@@ -1199,12 +1316,26 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
               <div className="bg-gray-50 rounded-lg p-4">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">Personal details</h2>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <User className="w-4 h-4 text-blue-600" />
-                    <span className="text-gray-800">
-                      {personalInfo.firstName} {personalInfo.lastName}
-                    </span>
-                  </div>
+                  {photoPreview && (
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={photoPreview} 
+                        alt="Profile" 
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                      <span className="text-gray-800 font-medium">
+                        {personalInfo.firstName} {personalInfo.lastName}
+                      </span>
+                    </div>
+                  )}
+                  {!photoPreview && (
+                    <div className="flex items-center gap-3">
+                      <User className="w-4 h-4 text-blue-600" />
+                      <span className="text-gray-800">
+                        {personalInfo.firstName} {personalInfo.lastName}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <Mail className="w-4 h-4 text-blue-600" />
                     <span className="text-gray-800">{personalInfo.email}</span>
@@ -1278,7 +1409,7 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                   <div className="space-y-4">
                     {experience.map((exp) => (
                       <div key={exp.id} className="border-l-2 border-blue-200 pl-4">
-                        <h3 className="font-medium text-gray-800">{exp.position}</h3>
+                        <h3 className="font-medium text-gray-800">{exp.jobTitle}</h3>
                         <p className="text-blue-600 font-medium">{exp.company}</p>
                         <p className="text-sm text-gray-600">
                           {exp.startDate} - {exp.current ? "Present" : exp.endDate}
@@ -1301,8 +1432,8 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                     {education.map((edu) => (
                       <div key={edu.id} className="border-l-2 border-blue-200 pl-4">
                         <h3 className="font-medium text-gray-800">{edu.degree}</h3>
-                        <p className="text-blue-600 font-medium">{edu.institution}</p>
-                        <p className="text-sm text-gray-600">{edu.fieldOfStudy}</p>
+                        <p className="text-blue-600 font-medium">{edu.school}</p>
+                        <p className="text-sm text-gray-600">{edu.location}</p>
                         <p className="text-sm text-gray-600">
                           {edu.startDate} - {edu.endDate}
                         </p>
@@ -1442,22 +1573,195 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                 <Button variant="ghost" size="sm">
                   <div className="w-4 h-4 border border-gray-400"></div>
                 </Button>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  Aa
-                  <ChevronDown className="w-3 h-3" />
-                </Button>
+                <div className="relative" ref={dropdownRef}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={() => setOpenDropdown(openDropdown === 'font' ? null : 'font')}
+                  >
+                    Aa
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                  {openDropdown === 'font' && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]">
+                    <div className="py-1">
+                      <button
+                        onClick={() => setSelectedFont("Inter")}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                          selectedFont === "Inter" ? "bg-blue-50 text-blue-600" : ""
+                        }`}
+                        style={{ fontFamily: "Inter" }}
+                      >
+                        Inter
+                      </button>
+                      <button
+                        onClick={() => setSelectedFont("Arial")}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                          selectedFont === "Arial" ? "bg-blue-50 text-blue-600" : ""
+                        }`}
+                        style={{ fontFamily: "Arial" }}
+                      >
+                        Arial
+                      </button>
+                      <button
+                        onClick={() => setSelectedFont("Times New Roman")}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                          selectedFont === "Times New Roman" ? "bg-blue-50 text-blue-600" : ""
+                        }`}
+                        style={{ fontFamily: "Times New Roman" }}
+                      >
+                        Times New Roman
+                      </button>
+                      <button
+                        onClick={() => setSelectedFont("Georgia")}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                          selectedFont === "Georgia" ? "bg-blue-50 text-blue-600" : ""
+                        }`}
+                        style={{ fontFamily: "Georgia" }}
+                      >
+                        Georgia
+                      </button>
+                      <button
+                        onClick={() => setSelectedFont("Verdana")}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 ${
+                          selectedFont === "Verdana" ? "bg-blue-50 text-blue-600" : ""
+                        }`}
+                        style={{ fontFamily: "Verdana" }}
+                      >
+                        Verdana
+                      </button>
+                    </div>
+                  </div>
+                  )}
+                </div>
                 <Button variant="ghost" size="sm" className="flex items-center gap-1">
                   <div className="w-4 h-4 bg-gray-400"></div>
                   <ChevronDown className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  ≡
-                  <ChevronDown className="w-3 h-3" />
-                </Button>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                  🎨
-                  <ChevronDown className="w-3 h-3" />
-                </Button>
+                <div className="relative">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={() => setOpenDropdown(openDropdown === 'format' ? null : 'format')}
+                  >
+                    ≡
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                  {openDropdown === 'format' && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[200px]">
+                      <div className="p-3 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setTextFormatting(prev => ({ ...prev, bold: !prev.bold }))}
+                            className={`p-2 rounded ${textFormatting.bold ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
+                          >
+                            <strong>B</strong>
+                          </button>
+                          <button
+                            onClick={() => setTextFormatting(prev => ({ ...prev, italic: !prev.italic }))}
+                            className={`p-2 rounded ${textFormatting.italic ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
+                          >
+                            <em>I</em>
+                          </button>
+                          <button
+                            onClick={() => setTextFormatting(prev => ({ ...prev, underline: !prev.underline }))}
+                            className={`p-2 rounded ${textFormatting.underline ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100'}`}
+                          >
+                            <u>U</u>
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600">Size:</span>
+                          <select
+                            value={textFormatting.fontSize}
+                            onChange={(e) => setTextFormatting(prev => ({ ...prev, fontSize: e.target.value }))}
+                            className="px-2 py-1 border border-gray-300 rounded text-sm"
+                          >
+                            <option value="12px">12px</option>
+                            <option value="14px">14px</option>
+                            <option value="16px">16px</option>
+                            <option value="18px">18px</option>
+                            <option value="20px">20px</option>
+                            <option value="24px">24px</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600">Alignment:</span>
+                          <div className="flex gap-1">
+                            <button className="p-1 hover:bg-gray-100 rounded">⫷</button>
+                            <button className="p-1 hover:bg-gray-100 rounded">⫸</button>
+                            <button className="p-1 hover:bg-gray-100 rounded">⫹</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={() => setOpenDropdown(openDropdown === 'color' ? null : 'color')}
+                  >
+                    🎨
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                  {openDropdown === 'color' && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[250px]">
+                      <div className="p-3 space-y-3">
+                        <div>
+                          <span className="text-sm text-gray-600 block mb-2">Theme Colors:</span>
+                          <div className="grid grid-cols-6 gap-2">
+                            {['blue', 'green', 'purple', 'red', 'orange', 'gray'].map((color) => (
+                              <button
+                                key={color}
+                                onClick={() => setSelectedColor(color)}
+                                className={`w-8 h-8 rounded-full border-2 ${
+                                  selectedColor === color ? 'border-gray-800' : 'border-gray-300'
+                                }`}
+                                style={{
+                                  backgroundColor: color === 'blue' ? '#3B82F6' :
+                                                color === 'green' ? '#10B981' :
+                                                color === 'purple' ? '#8B5CF6' :
+                                                color === 'red' ? '#EF4444' :
+                                                color === 'orange' ? '#F59E0B' :
+                                                '#6B7280'
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-600 block mb-2">Custom Colors:</span>
+                          <div className="grid grid-cols-6 gap-2">
+                            {['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA'].map((color) => (
+                              <button
+                                key={color}
+                                onClick={() => setSelectedColor(color)}
+                                className={`w-6 h-6 rounded border ${
+                                  selectedColor === color ? 'border-gray-800' : 'border-gray-300'
+                                }`}
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-600 block mb-2">Text Color:</span>
+                          <input
+                            type="color"
+                            value={selectedColor}
+                            onChange={(e) => setSelectedColor(e.target.value)}
+                            className="w-full h-10 border border-gray-300 rounded cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <Button variant="ghost" size="sm">
                 <div className="w-4 h-4 border border-gray-400 flex items-center justify-center">⛶</div>

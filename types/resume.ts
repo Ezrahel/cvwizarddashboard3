@@ -7,6 +7,9 @@ export interface PersonalInfo {
   city: string
   country: string
   summary: string
+  postCode?: string
+  desiredPosition?: string
+  useAsHeadline?: boolean
 }
 
 export interface Experience {
@@ -18,6 +21,7 @@ export interface Experience {
   endDate: string
   current: boolean
   description: string
+  position?: string
 }
 
 export interface Education {
@@ -29,6 +33,8 @@ export interface Education {
   endDate: string
   current: boolean
   description: string
+  institution?: string
+  fieldOfStudy?: string
 }
 
 export interface Skill {
@@ -45,6 +51,8 @@ export interface Resume {
   experience: Experience[]
   education: Education[]
   skills: Skill[]
+  languages?: string[]
+  hobbies?: string[]
   createdAt: string
   updatedAt: string
 }

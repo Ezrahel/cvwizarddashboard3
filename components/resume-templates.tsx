@@ -12,28 +12,28 @@ const templates: ResumeTemplate[] = [
     id: 'modern',
     name: 'Modern',
     description: 'Clean and contemporary design',
-    preview: '/placeholder.svg?height=300&width=200&text=Modern+Template',
+    preview: '/images/modern_cng.PNG?height=300&width=200&text=Modern+Template',
     color: 'bg-blue-500'
   },
   {
     id: 'classic',
     name: 'Classic',
     description: 'Traditional professional layout',
-    preview: '/placeholder.svg?height=300&width=200&text=Classic+Template',
+    preview: '/images/traditional_cng.PNG?height=300&width=200&text=Classic+Template',
     color: 'bg-gray-600'
   },
   {
     id: 'creative',
     name: 'Creative',
     description: 'Bold and eye-catching design',
-    preview: '/placeholder.svg?height=300&width=200&text=Creative+Template',
+    preview: '/images/creative_cng.PNG?height=300&width=200&text=Creative+Template',
     color: 'bg-purple-500'
   },
   {
     id: 'minimal',
     name: 'Minimal',
     description: 'Simple and elegant layout',
-    preview: '/placeholder.svg?height=300&width=200&text=Minimal+Template',
+    preview: '/images/minimal_cng.PNG?height=300&width=200&text=Minimal+Template',
     color: 'bg-green-500'
   }
 ]
@@ -55,7 +55,7 @@ export default function ResumeTemplates({ onSelectTemplate, onBack }: ResumeTemp
             <CardContent className="p-4">
               <div className="aspect-[3/4] mb-4 rounded-lg overflow-hidden">
                 <img 
-                  src={template.preview || "/placeholder.svg"} 
+                  src={template.preview || "/images/modern_cng.PNG"} 
                   alt={template.name}
                   className="w-full h-full object-cover"
                 />

@@ -94,7 +94,7 @@ export default function CVWizardDashboard() {
       <div className="h-screen bg-gray-50">
         <ResumeBuilder
           template={selectedTemplate}
-          resume={editingResume}
+          resume={editingResume || undefined}
           onSave={handleSaveResume}
           onBack={handleBackToDashboard}
         />
