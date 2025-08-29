@@ -60,15 +60,15 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(
     resume?.personalInfo || {
-      firstName: "Folahan",
-      lastName: "Victor",
-      email: "adelakinadefolahan001@gmail.com",
-      phone: "+2349039412648",
-      address: "6, Tanke MFM",
-      city: "Ilorin",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
       country: "",
       summary: "",
-      postCode: "20110",
+      postCode: "",
       desiredPosition: "",
       useAsHeadline: false,
     },
@@ -107,6 +107,45 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
   const closeDropdowns = () => setOpenDropdown(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Template-specific configuration
+  const isModern = template?.id === 'modern'
+  const isClassic = template?.id === 'classic'
+  const isCreative = template?.id === 'creative'
+  const isMinimal = template?.id === 'minimal'
+
+  // Defaults and style presets per template
+  const templateConfig: Record<string, { defaultColor: string; defaultFont: string }> = {
+    modern: { defaultColor: '#3B82F6', defaultFont: 'Inter' },
+    classic: { defaultColor: '#6B7280', defaultFont: 'Times New Roman' },
+    creative: { defaultColor: '#8B5CF6', defaultFont: 'Georgia' },
+    minimal: { defaultColor: 'red', defaultFont: 'Verdana' },
+  }
+
+  useEffect(() => {
+    const cfg = templateConfig[template?.id as keyof typeof templateConfig]
+    if (cfg) {
+      setSelectedColor(cfg.defaultColor)
+      setSelectedFont(cfg.defaultFont)
+    }
+  }, [template?.id])
+
+  const getHeaderStyle = () => {
+    // Creative and Modern get gradients; others get solid colors
+    if (isCreative) {
+      return {
+        backgroundImage: `linear-gradient(135deg, ${selectedColor} 0%, #F59E0B 50%, #EF4444 100%)`,
+      } as React.CSSProperties
+    }
+    if (isModern) {
+      return {
+        backgroundImage: `linear-gradient(135deg, ${selectedColor} 0%, #60A5FA 100%)`,
+      } as React.CSSProperties
+    }
+    return {
+      backgroundColor: selectedColor,
+    } as React.CSSProperties
+  }
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -136,6 +175,12 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
       // Here you would typically parse the resume file (PDF, DOC, etc.)
       // For now, we'll just show a success message
       alert("Resume uploaded successfully! Please fill in the details below.")
+    }
+  }
+
+  const handlePrint = () => {
+    if (typeof window !== 'undefined') {
+      window.print()
     }
   }
 
@@ -302,7 +347,7 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
           <Button variant="ghost" size="sm">
             <MoreHorizontal className="w-4 h-4" />
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+          <Button onClick={handlePrint} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
             <Download className="w-4 h-4" />
             Download
           </Button>
@@ -1262,7 +1307,7 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
             </div>
 
             <div className="mt-8 pt-4">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSave}>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={handlePrint}>
                 <Download className="w-4 h-4 mr-2" />
                 Download
               </Button>
@@ -1270,18 +1315,11 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
           </div>
         </div>
 
-        <div className="w-1/2 bg-gray-100 p-6 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
+                    <div className="w-1/2 bg-gray-100 p-6 overflow-y-auto">
+          <div className={`bg-white rounded-lg max-w-2xl mx-auto print-area ${isMinimal ? 'shadow-none border' : 'shadow-lg'}`} id="resume-preview">
             <div 
               className="text-white p-8 rounded-t-lg"
-              style={{
-                backgroundColor: selectedColor === 'blue' ? '#3B82F6' :
-                                selectedColor === 'green' ? '#10B981' :
-                                selectedColor === 'purple' ? '#8B5CF6' :
-                                selectedColor === 'red' ? '#EF4444' :
-                                selectedColor === 'orange' ? '#F59E0B' :
-                                '#6B7280'
-              }}
+              style={getHeaderStyle()}
             >
               <h1 
                 className="text-2xl font-bold text-center"
@@ -1311,10 +1349,14 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
               )}
             </div>
 
+            {isCreative && (
+              <div className="h-1 w-full" style={{ backgroundImage: 'linear-gradient(90deg, #F59E0B, #EF4444)' }} />
+            )}
+
             <div className="p-6 space-y-6">
               {/* Personal Details */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">Personal details</h2>
+                <h2 className={`text-lg font-semibold mb-4 ${isModern || isCreative ? 'text-blue-700' : 'text-gray-700'}`}>Personal details</h2>
                 <div className="space-y-3">
                   {photoPreview && (
                     <div className="flex items-center gap-3">
@@ -1330,22 +1372,22 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                   )}
                   {!photoPreview && (
                     <div className="flex items-center gap-3">
-                      <User className="w-4 h-4 text-blue-600" />
+                      {!isMinimal && <User className="w-4 h-4 text-blue-600" />}
                       <span className="text-gray-800">
                         {personalInfo.firstName} {personalInfo.lastName}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-blue-600" />
+                    {!isMinimal && <Mail className="w-4 h-4 text-blue-600" />}
                     <span className="text-gray-800">{personalInfo.email}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-blue-600" />
+                    {!isMinimal && <Phone className="w-4 h-4 text-blue-600" />}
                     <span className="text-gray-800">{personalInfo.phone}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                    {!isMinimal && <MapPin className="w-4 h-4 text-blue-600" />}
                     <span className="text-gray-800">
                       {personalInfo.address}
                       {personalInfo.postCode && `, ${personalInfo.postCode}`} {personalInfo.city}
@@ -1353,35 +1395,35 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                   </div>
                   {optionalPersonalData["Date of birth"] && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
+                      {!isMinimal && <Calendar className="w-4 h-4" />}
                       <span>{optionalPersonalData["Date of birth"]}</span>
                     </div>
                   )}
 
                   {optionalPersonalData["Place of birth"] && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
+                      {!isMinimal && <MapPin className="w-4 h-4" />}
                       <span>{optionalPersonalData["Place of birth"]}</span>
                     </div>
                   )}
 
                   {optionalPersonalData["Driver's license"] && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Car className="w-4 h-4" />
+                      {!isMinimal && <Car className="w-4 h-4" />}
                       <span>{optionalPersonalData["Driver's license"]}</span>
                     </div>
                   )}
 
                   {optionalPersonalData["Website"] && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Globe className="w-4 h-4" />
+                      {!isMinimal && <Globe className="w-4 h-4" />}
                       <span>{optionalPersonalData["Website"]}</span>
                     </div>
                   )}
 
                   {optionalPersonalData["LinkedIn"] && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Linkedin className="w-4 h-4" />
+                      {!isMinimal && <Linkedin className="w-4 h-4" />}
                       <span>{optionalPersonalData["LinkedIn"]}</span>
                     </div>
                   )}
@@ -1570,9 +1612,9 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
 
             <div className="border-t border-gray-200 p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm">
+                {/* <Button variant="ghost" size="sm">
                   <div className="w-4 h-4 border border-gray-400"></div>
-                </Button>
+                </Button> */}
                 <div className="relative" ref={dropdownRef}>
                   <Button 
                     variant="ghost" 
@@ -1635,10 +1677,10 @@ export default function ResumeBuilder({ template, resume, onSave, onBack }: Resu
                   </div>
                   )}
                 </div>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                {/* <Button variant="ghost" size="sm" className="flex items-center gap-1">
                   <div className="w-4 h-4 bg-gray-400"></div>
                   <ChevronDown className="w-3 h-3" />
-                </Button>
+                </Button> */}
                 <div className="relative">
                   <Button 
                     variant="ghost" 

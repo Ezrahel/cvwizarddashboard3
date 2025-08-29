@@ -162,3 +162,25 @@
     text-wrap: pretty;
   }
 }
+
+@media print {
+  /* Hide everything by default */
+  body * { visibility: hidden; }
+
+  /* Only show the resume preview area */
+  .print-area, .print-area * { visibility: visible; }
+
+  /* Position the printable area at the top-left for clean export */
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm; /* A4 width */
+    min-height: 297mm; /* A4 height */
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  /* Remove default margins for printing */
+  @page { margin: 12mm; }
+}
